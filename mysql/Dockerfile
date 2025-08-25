@@ -12,7 +12,7 @@ COPY hojaVida.sql /tmp/hojaVida.sql
 # Inicializa el servicio de MySQL
 # Crea usuario y contraseña en MySQL
 RUN service mysql start && \
-    mysql -e "CREATE USER 'admin'@'%' IDENTIFIED WITH mysql_native_password BY 'admin123';" && \
+    mysql -e "CREATE USER 'admin'@'%' IDENTIFIED WITH mysql_native_password BY '123';" && \
     mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION;" && \
     mysql -e "FLUSH PRIVILEGES;" && \
     mysql -e "SOURCE /tmp/hojaVida.sql;" && \
