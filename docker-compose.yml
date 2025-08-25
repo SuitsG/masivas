@@ -1,0 +1,57 @@
+services:
+  mysql:
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=supersecret
+      - MYSQL_DATABASE=hojaVida
+      - MYSQL_USER=app
+      - MYSQL_PASSWORD=app123
+    ports:
+      - "4001:3306"
+    networks:
+      base_masivas:
+        ipv4_address: 172.18.0.2
+
+  postgres:
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+    container_name: postgres
+    environment:
+      - POSTGRES_PASSWORD=supersecret
+      - POSTGRES_DB=colombia
+      - POSTGRES_USER=app
+    ports:
+      - "4002:5432"
+    networks:
+      base_masivas:
+        ipv4_address: 172.18.0.3
+        
+  mariadb:
+    build:
+      context: ./mariadb
+      dockerfile: Dockerfile
+    container_name: mariadb
+    environment:
+      - MARIADB_ROOT_PASSWORD=supersecret
+      - MARIADB_DATABASE=tienda
+      - MARIADB_USER=app
+      - MARIADB_PASSWORD=app123
+    ports:
+      - "4003:3306"
+    networks:
+      base_masivas:
+        ipv4_address: 172.18.0.4
+
+
+networks:
+  base_masivas:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+          gateway: 172.18.0.1
+
