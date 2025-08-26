@@ -28,12 +28,12 @@ RUN apt-get update && apt-get install -y \
 RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/17/main/pg_hba.conf
 RUN echo "listen_addresses='*'" >> /etc/postgresql/17/main/postgresql.conf
 
-COPY colombia.sql /tmp/colombia.sql
+COPY world.sql /tmp/world.sql
 
 # Script de inicialización
 RUN service postgresql start && \
     sudo -u postgres psql -c "CREATE USER admin WITH PASSWORD 'admin123' SUPERUSER;" && \
-    sudo -u postgres psql -f /tmp/colombia.sql && \
+    sudo -u postgres psql -f /tmp/world.sql && \
     service postgresql stop
 
 # Expone el puerto por defecto de PostgreSQL

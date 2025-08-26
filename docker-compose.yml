@@ -24,8 +24,6 @@ services:
       - POSTGRES_PASSWORD=supersecret
       - POSTGRES_DB=colombia
       - POSTGRES_USER=app
-    ports:
-      - "4002:5432"
     networks:
       base_masivas:
         ipv4_address: 172.18.0.3
@@ -45,6 +43,17 @@ services:
     networks:
       base_masivas:
         ipv4_address: 172.18.0.4
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api
+    ports:
+      - "8080:4000"
+    networks:
+      base_masivas:
+        ipv4_address: 172.18.0.5
+  
 
 
 networks:

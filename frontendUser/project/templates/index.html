@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="hero-section">
+        <h1>Bienvenido al Frontend Usuario</h1>
+        <p class="hero-description">
+            Esta aplicacion consume una API de base de datos masivas que se ejecuta en Docker.
+            El frontend esta desarrollado en Flask y funciona como proxy para evitar problemas de CORS.
+        </p>
+    </div>
+
+    <div class="modules-grid">
+        <div class="module-card">
+            <h2>Modulo Mundo</h2>
+            <p>
+                Modulo completamente funcional que permite consultar informacion de paises, estados y ciudades.
+                Incluye funcionalidades para cargar todos los datos, filtrar por nombre de pais y encontrar ciudades
+                repetidas.
+            </p>
+            <div class="module-features">
+                <h3>Funcionalidades disponibles:</h3>
+                <ul>
+                    <li>Cargar todos los paises, estados y ciudades</li>
+                    <li>Filtrar informacion por nombre de pais especifico</li>
+                    <li>Listar ciudades repetidas por nombre de pais</li>
+                    <li>Verificar estado de la API (Health check)</li>
+                    <li>Paginacion de resultados (100 por pagina)</li>
+                    <li>Busqueda insensible a mayusculas/minusculas</li>
+                    <li>Visualizacion simplificada (pais, estado, ciudad)</li>
+                </ul>
+            </div>
+            <a href="/mundo" class="btn btn-primary">Acceder al Modulo Mundo</a>
+        </div>
+
+        <div class="module-card disabled">
+            <h2>Modulo Hoja de Vida</h2>
+            <p>
+                Este modulo esta pendiente de desarrollo. La API correspondiente aun no esta disponible.
+                Una vez implementada, permitira gestionar informacion de hojas de vida.
+            </p>
+            <div class="status-badge">Pendiente de API</div>
+            <a href="/hojaVida" class="btn btn-secondary">Ver Placeholder</a>
+        </div>
+
+        <div class="module-card disabled">
+            <h2>Modulo Historial Factura</h2>
+            <p>
+                Este modulo esta pendiente de desarrollo. La API correspondiente aun no esta disponible.
+                Una vez implementada, permitira consultar el historial de facturas.
+            </p>
+            <div class="status-badge">Pendiente de API</div>
+            <a href="/historialFactura" class="btn btn-secondary">Ver Placeholder</a>
+        </div>
+    </div>
+
+    <div class="instructions-section">
+        <h2>Instrucciones de Ejecucion</h2>
+        <div class="instructions-grid">
+            <div class="instruction-step">
+                <h3>1. Crear entorno virtual</h3>
+                <code>python -m venv venv</code>
+            </div>
+            <div class="instruction-step">
+                <h3>2. Activar entorno</h3>
+                <code>Windows: venv\Scripts\activate</code><br>
+                <code>Linux/Mac: source venv/bin/activate</code>
+            </div>
+            <div class="instruction-step">
+                <h3>3. Instalar dependencias</h3>
+                <code>pip install -r requirements.txt</code>
+            </div>
+            <div class="instruction-step">
+                <h3>4. Configurar variables (opcional)</h3>
+                <code>Copiar .env.example a .env y ajustar API_BASE</code>
+            </div>
+            <div class="instruction-step">
+                <h3>5. Ejecutar aplicacion</h3>
+                <code>python app.py</code>
+            </div>
+            <div class="instruction-step">
+                <h3>6. Abrir en navegador</h3>
+                <code>http://localhost:5000</code>
+            </div>
+        </div>
+    </div>
+
+    <div class="api-info">
+        <h2>Informacion de la API</h2>
+        <p>
+            La API debe estar ejecutandose en Docker en <strong>http://localhost:8080</strong>
+            para que el frontend funcione correctamente.
+        </p>
+        <p>
+            El frontend actua como proxy y todas las llamadas se realizan a traves de la ruta <code>/api/</code>
+            para evitar problemas de CORS.
+        </p>
+    </div>
+</div>
+{% endblock %}

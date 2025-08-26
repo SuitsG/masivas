@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Modulo Mundo</h1>
+        <p>Consulta informacion de paises, estados y ciudades desde la API de base de datos masivas</p>
+        <p><small>Busqueda por nombre de pais (case-insensitive). Ejemplos: "Colombia", "united states",
+                "MEXICO"</small></p>
+    </div>
+
+    <div class="controls-section">
+        <div class="control-group">
+            <h3>Operaciones Disponibles</h3>
+
+            <div class="control-row">
+                <button id="loadAllBtn" class="btn btn-primary">Cargar Todo</button>
+                <span class="control-description">Obtiene todos los paises, estados y ciudades del mundo</span>
+            </div>
+
+            <div class="control-row">
+                <div class="input-group">
+                    <label for="countryName">Nombre del Pais:</label>
+                    <input type="text" id="countryName" placeholder="Ej: Colombia">
+                    <button id="filterByCountryBtn" class="btn btn-secondary">Filtrar por Pais</button>
+                </div>
+                <span class="control-description">Obtiene todos los estados y ciudades de un pais especifico</span>
+            </div>
+
+            <div class="control-row">
+                <div class="input-group">
+                    <label for="countryNameDup">Nombre del Pais:</label>
+                    <input type="text" id="countryNameDup" placeholder="Ej: United States">
+                    <button id="duplicatesBtn" class="btn btn-secondary">Listar Ciudades Repetidas</button>
+                </div>
+                <span class="control-description">Encuentra ciudades repetidas en un pais (muestra cada estado donde
+                    aparece)</span>
+            </div>
+
+            <div class="control-row">
+                <button id="healthBtn" class="btn btn-info">Health Check</button>
+                <span class="control-description">Verifica el estado de la API</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-section">
+        <div id="statusArea" class="status-message"></div>
+    </div>
+
+    <div class="results-section">
+        <div class="table-container">
+            <table id="resultsTable" class="results-table">
+                <thead>
+                    <tr>
+                        <th>Pais</th>
+                        <th>Estado</th>
+                        <th>Ciudad</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                    <!-- Los resultados se cargan aqui dinamicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="pagination" class="pagination-container">
+            <!-- Los controles de paginacion se cargan aqui dinamicamente -->
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/mundo.js"></script>
+{% endblock %}

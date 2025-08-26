@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Usuario - Base de Datos Masivas</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">Frontend Usuario</h1>
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link">Inicio</a></li>
+                <li><a href="/mundo" class="nav-link">Mundo</a></li>
+                <li><a href="/hojaVida" class="nav-link">Hoja de Vida</a></li>
+                <li><a href="/historialFactura" class="nav-link">Historial Factura</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Universidad Minuto de Dios - Base de Datos Masivas</p>
+    </footer>
+</body>
+
+</html>
