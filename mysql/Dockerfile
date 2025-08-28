@@ -7,7 +7,7 @@ RUN apt update && apt -y upgrade
 # Instala MySQL
 RUN apt-get update && apt-get install -y mysql-server
 
-COPY hojaVida.sql /tmp/hojaVida.sql
+COPY hoja_vida.sql /tmp/hoja_vida.sql
 
 # Inicializa el servicio de MySQL
 # Crea usuario y contraseña en MySQL
@@ -15,7 +15,7 @@ RUN service mysql start && \
     mysql -e "CREATE USER 'admin'@'%' IDENTIFIED WITH mysql_native_password BY '123';" && \
     mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION;" && \
     mysql -e "FLUSH PRIVILEGES;" && \
-    mysql -e "SOURCE /tmp/hojaVida.sql;" && \
+    mysql -e "SOURCE /tmp/hoja_vida.sql;" && \
     service mysql stop
 
 # Comando para permitir conexiones remotas (opcional)
