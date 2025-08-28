@@ -2,7 +2,6 @@ from flask import Flask, jsonify, request
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-import mariadb
 import mysql.connector
 
 app = Flask(__name__)
@@ -11,17 +10,17 @@ app = Flask(__name__)
 # Configuraciones de base de datos usando variables de entorno y nombres de servicios Docker
 MYSQL_CONFIG = {
     "host": os.getenv("MYSQL_HOST", "mysql"),  # nombre del servicio en docker-compose
-    "user": os.getenv("MYSQL_USER", "app"),
-    "password": os.getenv("MYSQL_PASSWORD", "app123"),
-    "database": os.getenv("MYSQL_DATABASE", "hojaVida"),
+    "user": os.getenv("MYSQL_USER", "admin"),
+    "password": os.getenv("MYSQL_PASSWORD", "admin123"),
+    "database": os.getenv("MYSQL_DATABASE", "hoja_vida"),
     "port": int(os.getenv("MYSQL_PORT", "3306")),
 }
 
 MARIADB_CONFIG = {
     "host": os.getenv("MARIADB_HOST", "mariadb"),  # nombre del servicio en docker-compose
-    "user": os.getenv("MARIADB_USER", "app"),
-    "password": os.getenv("MARIADB_PASSWORD", "app123"),
-    "database": os.getenv("MARIADB_DATABASE", "tienda"),
+    "user": os.getenv("MARIADB_USER", "admin"),
+    "password": os.getenv("MARIADB_PASSWORD", "admin123"),
+    "database": os.getenv("MARIADB_DATABASE", "factura_db"),
     "port": int(os.getenv("MARIADB_PORT", "3306")),
 }
 
