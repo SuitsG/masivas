@@ -174,8 +174,6 @@ def tablas_persona(name_tabla):
 
 
 
-
-
     # BASE DE DATOS FACTURA
 
 @app.route("/factura_db/historial_precio/<string:producto_name>", methods=["GET"])
@@ -220,13 +218,6 @@ def consultar_tabla():
     if err:
         return jsonify({"error": "DB error", "detail": err}), 500
     return jsonify(rows), 200
-
-
-
- 
-
-
-
 
 @app.route("/health", methods=["GET"])
 def health():
