@@ -12,7 +12,7 @@ MYSQL_CONFIG = {
     "host": os.getenv("MYSQL_HOST", "mysql"),  # nombre del servicio en docker-compose
     "user": os.getenv("MYSQL_USER", "admin"),
     "password": os.getenv("MYSQL_PASSWORD", "admin123"),
-    "database": os.getenv("MYSQL_DATABASE", "hoja_vida"),
+    "database": os.getenv("MYSQL_DATABASE", "hojaVida"),
     "port": int(os.getenv("MYSQL_PORT", "3306")),
 }
 
@@ -20,7 +20,7 @@ MARIADB_CONFIG = {
     "host": os.getenv("MARIADB_HOST", "mariadb"),  # nombre del servicio en docker-compose
     "user": os.getenv("MARIADB_USER", "admin"),
     "password": os.getenv("MARIADB_PASSWORD", "admin123"),
-    "database": os.getenv("MARIADB_DATABASE", "factura_db"),
+    "database": os.getenv("MARIADB_DATABASE", "tienda"),
     "port": int(os.getenv("MARIADB_PORT", "3306")),
 }
 
@@ -158,8 +158,16 @@ def reporte_tiempo_experiencia(numero_documento):
 
 @app.route("/hoja_vida/tablas_persona/<string:name_tabla>", methods=["GET"])
 def tablas_persona(name_tabla):
-    sql = "SELECT * FROM %s"
-    rows, err = query_mysql(sql, (name_tabla,))
+    # Validar nombres de tabla permitidos para evitar SQL injection
+    tablas_permitidas = ['persona', 'pais', 'estado', 'ciudad', 'distrito_militar', 
+                        'libreta_militar', 'idioma', 'educacion_basica', 
+                        'educacion_superior', 'experiencia_laboral']
+    
+    if name_tabla not in tablas_permitidas:
+        return jsonify({"error": "Tabla no permitida"}), 400
+    
+    sql = f"SELECT * FROM {name_tabla}"
+    rows, err = query_mysql(sql, (), "mysql")
     if err:
         return jsonify({"error": "DB error", "detail": err}), 500
     return jsonify(rows), 200
@@ -179,10 +187,36 @@ def historial_precio(producto_name):
     return jsonify(rows), 200
 
 
-@app.route("/factura_db/tabla_productos/<string:name_tabla>", methods=["POST"])
+@app.route("/factura_db/tabla_productos/<string:name_tabla>", methods=["GET"])
 def tabla_productos(name_tabla):
-    sql = "SELECT * FROM %s"
-    rows, err = query_mysql(sql, (name_tabla,))
+    # Validar nombres de tabla permitidos para evitar SQL injection
+    tablas_permitidas = ['cliente', 'articulo', 'historial_precio', 'factura', 'detalle_factura']
+    
+    if name_tabla not in tablas_permitidas:
+        return jsonify({"error": "Tabla no permitida"}), 400
+    
+    sql = f"SELECT * FROM {name_tabla}"
+    rows, err = query_mysql(sql, (), "mariadb")
+    if err:
+        return jsonify({"error": "DB error", "detail": err}), 500
+    return jsonify(rows), 200
+
+@app.route("/factura_db/consultar_tabla", methods=["POST"])
+def consultar_tabla():
+    data = request.get_json()
+    if not data or 'name_tabla' not in data:
+        return jsonify({"error": "name_tabla es requerido"}), 400
+    
+    name_tabla = data['name_tabla']
+    
+    # Validar nombres de tabla permitidos para evitar SQL injection
+    tablas_permitidas = ['cliente', 'articulo', 'historial_precio', 'factura', 'detalle_factura']
+    
+    if name_tabla not in tablas_permitidas:
+        return jsonify({"error": "Tabla no permitida"}), 400
+    
+    sql = f"SELECT * FROM {name_tabla}"
+    rows, err = query_mysql(sql, (), "mariadb")
     if err:
         return jsonify({"error": "DB error", "detail": err}), 500
     return jsonify(rows), 200

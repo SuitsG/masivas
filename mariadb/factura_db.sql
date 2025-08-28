@@ -1,8 +1,8 @@
 SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
 
-CREATE DATABASE IF NOT EXISTS factura_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE factura_db;
+CREATE DATABASE IF NOT EXISTS tienda CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE tienda;
 
 
 CREATE TABLE cliente (
@@ -61,7 +61,13 @@ CREATE TABLE detalle_factura (
     INSERT INTO articulo (nombre, descripcion, categoria, marca) VALUES
     ('Televisor 50"', 'Televisor LED 50 pulgadas 4K UHD', 'Electrodoméstico', 'Samsung'),
     ('Lavadora 20kg', 'Lavadora automática 20kg carga superior', 'Electrodoméstico', 'LG'),
-    ('Nevera 400L', 'Nevera no frost 400 litros', 'Electrodoméstico', 'Whirlpool');
+    ('Nevera 400L', 'Nevera no frost 400 litros', 'Electrodoméstico', 'Whirlpool'),
+    ('Iphone16', 'Telefono inteligente', 'Electrodoméstico', 'Apple');
+
+    -- Historial de precios para Iphone16 (articulo_id = 4)
+    INSERT INTO historial_precio (articulo_id, precio, fecha_inicio, fecha_fin) VALUES
+    (4, 4500000, '2024-01-01', '2024-05-31'),
+    (4, 4200000, '2024-06-01', NULL);
 
     -- Historial de precios
     INSERT INTO historial_precio (articulo_id, precio, fecha_inicio, fecha_fin) VALUES
@@ -74,12 +80,14 @@ CREATE TABLE detalle_factura (
     INSERT INTO factura (cliente_id, total) VALUES
     (1, 4600000),
     (2, 2300000);
+    (1, 4200000);
 
     -- Detalle facturas
     INSERT INTO detalle_factura (factura_id, articulo_id, cantidad, precio_unitario, subtotal) VALUES
     (1, 1, 1, 2300000, 2300000),
     (1, 2, 1, 2300000, 2300000),
     (2, 1, 1, 2300000, 2300000);
+    (3, 4, 1, 4200000, 4200000);
 
 
 

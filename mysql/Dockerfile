@@ -1,14 +1,19 @@
 FROM ubuntu
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 
 # Actualiza la imagen base de Ubuntu
 RUN apt update && apt -y upgrade
 
 # Instala MySQL
 RUN apt-get update && apt-get install -y mysql-server
+RUN apt install -y python3
+RUN apt install -y python3-mysql.connector
 
 COPY hoja_vida.sql /tmp/hoja_vida.sql
-
+COPY scripts.py /tmp/scripts.py
+COPY nueva_db.csv /tmp/nueva_db.csv
 # Inicializa el servicio de MySQL
 # Crea usuario y contraseña en MySQL
 RUN service mysql start && \
@@ -16,6 +21,7 @@ RUN service mysql start && \
     mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION;" && \
     mysql -e "FLUSH PRIVILEGES;" && \
     mysql -e "SOURCE /tmp/hoja_vida.sql;" && \
+    python3 /tmp/scripts.py && \
     service mysql stop
 
 # Comando para permitir conexiones remotas (opcional)
@@ -25,3 +31,4 @@ EXPOSE 3306
 
 # Mantiene el servicio de MySQL en ejecución
 CMD ["mysqld_safe"]
+

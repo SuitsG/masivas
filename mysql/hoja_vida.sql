@@ -6,13 +6,13 @@
 SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
 
-DROP DATABASE IF EXISTS hoja_vida;
+DROP DATABASE IF EXISTS hojaVida;
 
-CREATE DATABASE hoja_vida
+CREATE DATABASE hojaVida
   DEFAULT CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE hoja_vida;
+USE hojaVida;
 
 -- ===================================================
 -- Tablas
