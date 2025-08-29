@@ -33,24 +33,42 @@
             <a href="/mundo" class="btn btn-primary">Acceder al Modulo Mundo</a>
         </div>
 
-        <div class="module-card disabled">
+        <div class="module-card">
             <h2>Modulo Hoja de Vida</h2>
             <p>
-                Este modulo esta pendiente de desarrollo. La API correspondiente aun no esta disponible.
-                Una vez implementada, permitira gestionar informacion de hojas de vida.
+                Modulo completamente funcional que gestiona información de currículums y experiencias laborales
+                utilizando una base de datos MySQL.
             </p>
-            <div class="status-badge">Pendiente de API</div>
-            <a href="/hojaVida" class="btn btn-secondary">Ver Placeholder</a>
+            <div class="module-features">
+                <h3>Funcionalidades disponibles:</h3>
+                <ul>
+                    <li>Reporte de tiempo de experiencia laboral por documento</li>
+                    <li>Consulta directa de tablas del sistema</li>
+                    <li>Acceso a catálogos de personas, países, idiomas, educación</li>
+                    <li>Visualización de experiencia laboral completa</li>
+                    <li>Tablas dinámicas basadas en la estructura de datos</li>
+                </ul>
+            </div>
+            <a href="/hojaVida" class="btn btn-primary">Acceder al Modulo Hoja de Vida</a>
         </div>
 
-        <div class="module-card disabled">
+        <div class="module-card">
             <h2>Modulo Historial Factura</h2>
             <p>
-                Este modulo esta pendiente de desarrollo. La API correspondiente aun no esta disponible.
-                Una vez implementada, permitira consultar el historial de facturas.
+                Modulo completamente funcional que gestiona un sistema de facturación y control de inventarios
+                con historial de precios utilizando una base de datos MariaDB.
             </p>
-            <div class="status-badge">Pendiente de API</div>
-            <a href="/historialFactura" class="btn btn-secondary">Ver Placeholder</a>
+            <div class="module-features">
+                <h3>Funcionalidades disponibles:</h3>
+                <ul>
+                    <li>Historial completo de precios por producto</li>
+                    <li>Consulta directa de tablas del sistema de tienda</li>
+                    <li>Acceso a clientes, artículos, facturas y detalles</li>
+                    <li>Evolución de precios a lo largo del tiempo</li>
+                    <li>Tablas dinámicas basadas en la estructura de datos</li>
+                </ul>
+            </div>
+            <a href="/historialFactura" class="btn btn-primary">Acceder al Modulo Historial Factura</a>
         </div>
     </div>
 
@@ -95,6 +113,14 @@
             El frontend actua como proxy y todas las llamadas se realizan a traves de la ruta <code>/api/</code>
             para evitar problemas de CORS.
         </p>
+        <div class="api-databases">
+            <h3>Bases de Datos Disponibles:</h3>
+            <ul>
+                <li><strong>Mundo (PostgreSQL):</strong> Información geográfica mundial</li>
+                <li><strong>Hoja de Vida (MySQL):</strong> Currículums y experiencias laborales</li>
+                <li><strong>Tienda (MariaDB):</strong> Sistema de facturación e inventarios</li>
+            </ul>
+        </div>
     </div>
 </div>
 {% endblock %}

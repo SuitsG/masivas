@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Modulo Hoja de Vida</h1>
+        <p>Gestiona información de currículums y experiencias laborales (Base de datos MySQL)</p>
+        <p><small>Consulta reportes de experiencia laboral y accede a catálogos del sistema</small></p>
+    </div>
+
+    <div class="controls-section">
+        <div class="control-group">
+            <h3>Operaciones Disponibles</h3>
+
+            <div class="control-row">
+                <div class="input-group">
+                    <label for="numeroDocumento">Número de Documento:</label>
+                    <input type="text" id="numeroDocumento" placeholder="Ej: 12345678">
+                    <button id="reporteExperienciaBtn" class="btn btn-primary">Reporte de Experiencia</button>
+                </div>
+                <span class="control-description">Calcula el tiempo total de experiencia laboral de una persona</span>
+            </div>
+
+            <div class="control-row">
+                <div class="input-group">
+                    <label for="tablaPersona">Tabla del Sistema:</label>
+                    <select id="tablaPersona">
+                        <option value="">Seleccione una tabla...</option>
+                        <option value="persona">Persona</option>
+                        <option value="pais">País</option>
+                        <option value="estado">Estado</option>
+                        <option value="ciudad">Ciudad</option>
+                        <option value="distrito_militar">Distrito Militar</option>
+                        <option value="libreta_militar">Libreta Militar</option>
+                        <option value="idioma">Idioma</option>
+                        <option value="educacion_basica">Educación Básica</option>
+                        <option value="educacion_superior">Educación Superior</option>
+                        <option value="experiencia_laboral">Experiencia Laboral</option>
+                    </select>
+                    <button id="consultarTablaBtn" class="btn btn-secondary">Consultar Tabla</button>
+                </div>
+                <span class="control-description">Consulta directamente las tablas del sistema de hojas de vida</span>
+            </div>
+
+            <div class="control-row">
+                <button id="healthBtn" class="btn btn-info">Health Check</button>
+                <span class="control-description">Verifica el estado de la API</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-section">
+        <div id="statusArea" class="status-message"></div>
+    </div>
+
+    <div class="results-section">
+        <div class="table-container">
+            <table id="resultsTable" class="results-table">
+                <thead id="tableHead">
+                    <!-- Los headers se cargan dinámicamente -->
+                </thead>
+                <tbody id="resultsBody">
+                    <!-- Los resultados se cargan aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="pagination" class="pagination-container">
+            <!-- Los controles de paginación se cargan aquí dinámicamente -->
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/hoja_vida.js"></script>
+{% endblock %}

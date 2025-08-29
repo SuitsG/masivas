@@ -2,7 +2,6 @@
 const BASE = "/api";
 
 // Variables globales para manejo de datos y paginacion
-// Los datos de la API contienen: {country, state, city}
 let currentData = [];
 let currentPage = 1;
 const pageSize = 100;
@@ -10,17 +9,17 @@ const pageSize = 100;
 // Elementos del DOM
 const statusArea = document.getElementById('statusArea');
 const resultsBody = document.getElementById('resultsBody');
+const tableHead = document.getElementById('tableHead');
 const paginationContainer = document.getElementById('pagination');
 
 // Botones
-const loadAllBtn = document.getElementById('loadAllBtn');
-const filterByCountryBtn = document.getElementById('filterByCountryBtn');
-const duplicatesBtn = document.getElementById('duplicatesBtn');
+const historialPrecioBtn = document.getElementById('historialPrecioBtn');
+const consultarTablaProductoBtn = document.getElementById('consultarTablaProductoBtn');
 const healthBtn = document.getElementById('healthBtn');
 
 // Inputs
-const countryNameInput = document.getElementById('countryName');
-const countryNameDupInput = document.getElementById('countryNameDup');
+const nombreProductoInput = document.getElementById('nombreProducto');
+const tablaProductoSelect = document.getElementById('tablaProducto');
 
 // Funcion para mostrar mensajes de estado
 function setStatus(message, type = 'info') {
@@ -30,10 +29,29 @@ function setStatus(message, type = 'info') {
 
 // Funcion para deshabilitar/habilitar botones
 function setButtonsDisabled(disabled) {
-    loadAllBtn.disabled = disabled;
-    filterByCountryBtn.disabled = disabled;
-    duplicatesBtn.disabled = disabled;
+    historialPrecioBtn.disabled = disabled;
+    consultarTablaProductoBtn.disabled = disabled;
     healthBtn.disabled = disabled;
+}
+
+// Funcion para crear headers dinamicos basados en los datos
+function createDynamicHeaders(data) {
+    if (!data || data.length === 0) return;
+
+    const firstRow = data[0];
+    const headers = Object.keys(firstRow);
+
+    tableHead.innerHTML = '';
+    const headerRow = document.createElement('tr');
+
+    headers.forEach(header => {
+        const th = document.createElement('th');
+        // Formatear el nombre del header
+        th.textContent = header.charAt(0).toUpperCase() + header.slice(1).replace(/_/g, ' ');
+        headerRow.appendChild(th);
+    });
+
+    tableHead.appendChild(headerRow);
 }
 
 // Funcion para renderizar filas en la tabla
@@ -41,19 +59,49 @@ function renderRows(data) {
     resultsBody.innerHTML = '';
 
     if (!data || data.length === 0) {
+        const firstRow = tableHead.querySelector('tr');
+        const colCount = firstRow ? firstRow.children.length : 1;
         const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="3" style="text-align: center; color: #7f8c8d;">No hay resultados para mostrar</td>';
+        row.innerHTML = `<td colspan="${colCount}" style="text-align: center; color: #7f8c8d;">No hay resultados para mostrar</td>`;
         resultsBody.appendChild(row);
         return;
     }
 
+    // Crear headers dinamicos si no existen
+    if (tableHead.children.length === 0) {
+        createDynamicHeaders(data);
+    }
+
+    const firstRow = data[0];
+    const fields = Object.keys(firstRow);
+
     data.forEach(item => {
         const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${item.country || ''}</td>
-            <td>${item.state || ''}</td>
-            <td>${item.city || ''}</td>
-        `;
+
+        fields.forEach(field => {
+            const td = document.createElement('td');
+            // Formatear fechas si el campo contiene 'fecha'
+            if (field.toLowerCase().includes('fecha') && item[field]) {
+                const date = new Date(item[field]);
+                if (!isNaN(date.getTime())) {
+                    td.textContent = date.toLocaleDateString('es-ES');
+                } else {
+                    td.textContent = item[field];
+                }
+            } else if (field.toLowerCase().includes('precio') && item[field]) {
+                // Formatear precios
+                const precio = parseFloat(item[field]);
+                if (!isNaN(precio)) {
+                    td.textContent = `$${precio.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                } else {
+                    td.textContent = item[field];
+                }
+            } else {
+                td.textContent = item[field] || '';
+            }
+            row.appendChild(td);
+        });
+
         resultsBody.appendChild(row);
     });
 }
@@ -125,30 +173,42 @@ async function handleApiResponse(response) {
     }
 }
 
-// Funcion para cargar todos los datos
-async function fetchAll() {
+// Funcion para obtener historial de precios
+async function fetchHistorialPrecio(nombreProducto) {
+    if (!nombreProducto || nombreProducto.trim().length === 0) {
+        setStatus('Por favor ingrese un nombre de producto válido', 'error');
+        return;
+    }
+
     try {
-        setStatus('Cargando todos los paises, estados y ciudades...', 'loading');
+        setStatus(`Obteniendo historial de precios para: ${nombreProducto}...`, 'loading');
         setButtonsDisabled(true);
 
-        const response = await fetch(`${BASE}/mundo/obtenerPaisesEstadosCiudades`);
+        const encodedProducto = encodeURIComponent(nombreProducto.trim());
+        const response = await fetch(`${BASE}/factura_db/historial_precio/${encodedProducto}`);
         const data = await handleApiResponse(response);
 
         if (Array.isArray(data) && data.length > 0) {
             currentData = data;
             currentPage = 1;
+
+            // Limpiar headers anteriores
+            tableHead.innerHTML = '';
+
             paginate(currentData, currentPage);
-            setStatus(`Se cargaron ${data.length} registros exitosamente`, 'success');
+            setStatus(`Se encontraron ${data.length} registros de precios para: ${nombreProducto}`, 'success');
         } else {
             currentData = [];
+            tableHead.innerHTML = '';
             renderRows([]);
             paginationContainer.innerHTML = '';
-            setStatus('No se encontraron datos', 'empty');
+            setStatus(`No se encontró historial de precios para: ${nombreProducto}`, 'empty');
         }
     } catch (error) {
-        console.error('Error al cargar todos los datos:', error);
-        setStatus(`Error al cargar datos: ${error.message}`, 'error');
+        console.error('Error al obtener historial de precios:', error);
+        setStatus(`Error al obtener historial: ${error.message}`, 'error');
         currentData = [];
+        tableHead.innerHTML = '';
         renderRows([]);
         paginationContainer.innerHTML = '';
     } finally {
@@ -156,75 +216,41 @@ async function fetchAll() {
     }
 }
 
-// Funcion para filtrar por pais
-async function fetchByCountry(countryName) {
-    if (!countryName || countryName.trim().length === 0) {
-        setStatus('Por favor ingrese un nombre de pais valido', 'error');
+// Funcion para consultar tabla del sistema
+async function fetchTablaProducto(nombreTabla) {
+    if (!nombreTabla) {
+        setStatus('Por favor seleccione una tabla del sistema', 'error');
         return;
     }
 
     try {
-        setStatus(`Filtrando por pais: ${countryName}...`, 'loading');
+        setStatus(`Consultando tabla: ${nombreTabla}...`, 'loading');
         setButtonsDisabled(true);
 
-        // Codificar el nombre del pais para la URL
-        const encodedCountryName = encodeURIComponent(countryName.trim());
-        const response = await fetch(`${BASE}/obtenerPaisesEstadosCiudades/${encodedCountryName}`);
+        const response = await fetch(`${BASE}/factura_db/tabla_productos/${nombreTabla}`);
         const data = await handleApiResponse(response);
 
         if (Array.isArray(data) && data.length > 0) {
             currentData = data;
             currentPage = 1;
+
+            // Limpiar headers anteriores
+            tableHead.innerHTML = '';
+
             paginate(currentData, currentPage);
-            setStatus(`Se encontraron ${data.length} registros para el pais: ${countryName}`, 'success');
+            setStatus(`Se encontraron ${data.length} registros en la tabla ${nombreTabla}`, 'success');
         } else {
             currentData = [];
+            tableHead.innerHTML = '';
             renderRows([]);
             paginationContainer.innerHTML = '';
-            setStatus(`No se encontraron datos para el pais: ${countryName}`, 'empty');
+            setStatus(`No se encontraron datos en la tabla: ${nombreTabla}`, 'empty');
         }
     } catch (error) {
-        console.error('Error al filtrar por pais:', error);
-        setStatus(`Error al filtrar por pais: ${error.message}`, 'error');
+        console.error('Error al consultar tabla:', error);
+        setStatus(`Error al consultar tabla: ${error.message}`, 'error');
         currentData = [];
-        renderRows([]);
-        paginationContainer.innerHTML = '';
-    } finally {
-        setButtonsDisabled(false);
-    }
-}
-
-// Funcion para obtener ciudades repetidas
-async function fetchDuplicates(countryName) {
-    if (!countryName || countryName.trim().length === 0) {
-        setStatus('Por favor ingrese un nombre de pais valido', 'error');
-        return;
-    }
-
-    try {
-        setStatus(`Buscando ciudades repetidas en pais: ${countryName}...`, 'loading');
-        setButtonsDisabled(true);
-
-        // Codificar el nombre del pais para la URL
-        const encodedCountryName = encodeURIComponent(countryName.trim());
-        const response = await fetch(`${BASE}/listarCiudadesRepetidasPais/${encodedCountryName}`);
-        const data = await handleApiResponse(response);
-
-        if (Array.isArray(data) && data.length > 0) {
-            currentData = data;
-            currentPage = 1;
-            paginate(currentData, currentPage);
-            setStatus(`Se encontraron ${data.length} ciudades repetidas en el pais: ${countryName}`, 'success');
-        } else {
-            currentData = [];
-            renderRows([]);
-            paginationContainer.innerHTML = '';
-            setStatus(`No se encontraron ciudades repetidas en el pais: ${countryName}`, 'empty');
-        }
-    } catch (error) {
-        console.error('Error al buscar ciudades repetidas:', error);
-        setStatus(`Error al buscar ciudades repetidas: ${error.message}`, 'error');
-        currentData = [];
+        tableHead.innerHTML = '';
         renderRows([]);
         paginationContainer.innerHTML = '';
     } finally {
@@ -243,18 +269,20 @@ async function pingHealth() {
 
         // Limpiar tabla ya que health no devuelve datos tabulares
         currentData = [];
+        tableHead.innerHTML = '';
         renderRows([]);
         paginationContainer.innerHTML = '';
 
         if (response.ok) {
             setStatus('API funcionando correctamente', 'success');
         } else {
-            setStatus(`API respondio con estado: ${response.status}`, 'error');
+            setStatus(`API respondió con estado: ${response.status}`, 'error');
         }
     } catch (error) {
         console.error('Error al verificar health:', error);
         setStatus(`Error al verificar estado de la API: ${error.message}`, 'error');
         currentData = [];
+        tableHead.innerHTML = '';
         renderRows([]);
         paginationContainer.innerHTML = '';
     } finally {
@@ -274,24 +302,32 @@ function validateTextInput(input) {
     }
 }
 
+// Funcion para validar select
+function validateSelect(select) {
+    if (!select.value) {
+        select.style.borderColor = '#e74c3c';
+        return false;
+    } else {
+        select.style.borderColor = '#ddd';
+        return true;
+    }
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', function () {
-    // Evento para cargar todos los datos
-    loadAllBtn.addEventListener('click', fetchAll);
-
-    // Evento para filtrar por pais
-    filterByCountryBtn.addEventListener('click', function () {
-        const countryName = countryNameInput.value.trim();
-        if (validateTextInput(countryNameInput)) {
-            fetchByCountry(countryName);
+    // Evento para historial de precios
+    historialPrecioBtn.addEventListener('click', function () {
+        const nombreProducto = nombreProductoInput.value.trim();
+        if (validateTextInput(nombreProductoInput)) {
+            fetchHistorialPrecio(nombreProducto);
         }
     });
 
-    // Evento para buscar ciudades repetidas
-    duplicatesBtn.addEventListener('click', function () {
-        const countryName = countryNameDupInput.value.trim();
-        if (validateTextInput(countryNameDupInput)) {
-            fetchDuplicates(countryName);
+    // Evento para consultar tabla
+    consultarTablaProductoBtn.addEventListener('click', function () {
+        const nombreTabla = tablaProductoSelect.value;
+        if (validateSelect(tablaProductoSelect)) {
+            fetchTablaProducto(nombreTabla);
         }
     });
 
@@ -299,27 +335,21 @@ document.addEventListener('DOMContentLoaded', function () {
     healthBtn.addEventListener('click', pingHealth);
 
     // Validacion en tiempo real de inputs
-    countryNameInput.addEventListener('input', function () {
+    nombreProductoInput.addEventListener('input', function () {
         validateTextInput(this);
     });
 
-    countryNameDupInput.addEventListener('input', function () {
-        validateTextInput(this);
+    tablaProductoSelect.addEventListener('change', function () {
+        validateSelect(this);
     });
 
-    // Permitir envio con Enter en los inputs
-    countryNameInput.addEventListener('keypress', function (e) {
+    // Permitir envio con Enter en el input
+    nombreProductoInput.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
-            filterByCountryBtn.click();
-        }
-    });
-
-    countryNameDupInput.addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            duplicatesBtn.click();
+            historialPrecioBtn.click();
         }
     });
 
     // Mensaje inicial
-    setStatus('Seleccione una operacion para comenzar', 'info');
+    setStatus('Seleccione una operación para comenzar', 'info');
 });
