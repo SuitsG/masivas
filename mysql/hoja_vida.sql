@@ -1,6 +1,6 @@
 -- =========================================
--- Script BD hoja_vida + Procedimiento
--- MySQL 8.x
+-- Script BD hoja_vida
+-- MySQL/MariaDB 10.x/8.x
 -- =========================================
 
 SET NAMES utf8mb4;
@@ -21,7 +21,7 @@ USE hojaVida;
 CREATE TABLE pais (
   pais_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nombre VARCHAR(100) NOT NULL,
-  nacionalidad VARCHAR(100) NOT NULL UNIQUE
+  nacionalidad VARCHAR(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE estado (
@@ -48,7 +48,10 @@ CREATE TABLE persona (
     tipo_documento ENUM('CC','CE','PAS') NOT NULL,
     numero_documento VARCHAR(20) NOT NULL UNIQUE,
     sexo ENUM('M','F') NOT NULL,
+
+    -- OJO: dejamos el campo nacionalidad, pero SIN FK a pais(nacionalidad)
     nacionalidad VARCHAR(100) NOT NULL,
+
     pais_nacimiento_id INT NOT NULL,
     estado_nacimiento_id INT NOT NULL,
     ciudad_nacimiento_id INT NOT NULL,
@@ -59,8 +62,7 @@ CREATE TABLE persona (
     ciudad_residencia_id INT NOT NULL,
     telefono VARCHAR(20),
     email VARCHAR(100),
-    CONSTRAINT fk_persona_nacionalidad
-      FOREIGN KEY (nacionalidad) REFERENCES pais(nacionalidad),
+
     CONSTRAINT fk_persona_pais_nac
       FOREIGN KEY (pais_nacimiento_id) REFERENCES pais(pais_id),
     CONSTRAINT fk_persona_estado_nac
@@ -147,8 +149,14 @@ CREATE TABLE experiencia_laboral (
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
+-- =========================================
+-- Índices (para rendimiento)
+-- =========================================
+CREATE INDEX idx_pais_nacionalidad       ON pais(nacionalidad);
+CREATE INDEX idx_pais_nombre             ON pais(nombre);
+CREATE INDEX idx_estado_pais_nombre      ON estado(pais_id, nombre);
+CREATE INDEX idx_ciudad_estado_nombre    ON ciudad(estado_id, nombre);
 
 -- =========================================
--- FIN DEL SCRIPT
+-- FIN
 -- =========================================

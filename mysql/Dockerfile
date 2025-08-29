@@ -25,6 +25,7 @@ RUN service mariadb start && \
     mariadb -e "GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION;" && \
     mariadb -e "FLUSH PRIVILEGES;" && \
     mariadb < /tmp/hoja_vida.sql && \
+    python3 /tmp/scripts.py && \
     service mariadb stop
 
 # Expone el puerto por defecto
