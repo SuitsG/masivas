@@ -156,13 +156,151 @@ def listar_ciudades_repetidas_pais(country_name):
     return jsonify(rows), 200
 
 
+
+# Api para formato Unico de hoja de Vida
 @app.route("/hoja_vida/reporte_tiempo_experiencia/<string:numero_documento>", methods=["GET"])
 def reporte_tiempo_experiencia(numero_documento):
-    sql = "CALL reporte_tiempo_experiencia(%s)"
+    check_persona_sql = "SELECT persona_id FROM persona WHERE numero_documento = %s LIMIT 1"
+    persona_result, err = query_mysql(check_persona_sql, (numero_documento,))
+    if err:
+        return jsonify({"error": "DB error", "detail": err}), 500
+    if not persona_result:
+        return jsonify({"error": f"No existe persona con documento {numero_documento}"}), 404
+
+    sql = """
+    WITH
+    persona_lookup AS (
+      SELECT persona_id
+      FROM persona
+      WHERE numero_documento = %s
+      LIMIT 1
+    ),
+    base AS (
+  SELECT
+    CASE
+      WHEN sector = 'PUBLICA' THEN 'SERVIDOR PÚBLICO'
+      WHEN (
+        INSTR(LOWER(empresa), 'independient') > 0 OR
+        INSTR(LOWER(empresa), 'freelan') > 0 OR
+        INSTR(LOWER(cargo_contrato), 'independient') > 0 OR
+        INSTR(LOWER(cargo_contrato), 'servicio') > 0
+      ) THEN 'TRABAJADOR INDEPENDIENTE'
+      ELSE 'EMPLEADO DEL SECTOR PRIVADO'
+    END AS categoria,
+
+    -- inicio siempre válido y no futuro
+    GREATEST(DATE(fecha_ingreso), DATE('1900-01-01')) AS ini,
+
+    -- fin: si es_actual=1 o no hay retiro => hoy; si retiro > hoy => hoy; si no, retiro
+    LEAST(
+      COALESCE(
+        CASE WHEN es_actual = 1 THEN CURDATE() ELSE fecha_retiro END,
+        CURDATE()
+      ),
+      CURDATE()
+    ) AS fin
+  FROM experiencia_laboral
+  WHERE persona_id = (SELECT persona_id FROM persona_lookup)
+    AND fecha_ingreso IS NOT NULL
+    ),
+    rangos AS (
+      SELECT categoria, ini, fin
+      FROM base
+      WHERE fin >= ini
+    ),
+
+    -- Colapso POR CATEGORÍA
+    orden_cat AS (
+      SELECT
+        categoria, ini, fin,
+        CASE WHEN LAG(fin) OVER (PARTITION BY categoria ORDER BY ini) >= ini THEN 0 ELSE 1 END AS nueva_isla
+      FROM rangos
+    ),
+    islas_cat AS (
+      SELECT
+        categoria, ini, fin,
+        SUM(nueva_isla) OVER (PARTITION BY categoria ORDER BY ini ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS grp
+      FROM orden_cat
+    ),
+    colapsado_cat AS (
+      SELECT categoria, MIN(ini) AS ini, MAX(fin) AS fin
+      FROM islas_cat
+      GROUP BY categoria, grp
+    ),
+    meses_categoria AS (
+      SELECT categoria, COALESCE(SUM(TIMESTAMPDIFF(MONTH, ini, fin)), 0) AS total_meses
+      FROM colapsado_cat
+      GROUP BY categoria
+    ),
+    detalle AS (
+      SELECT 'SERVIDOR PÚBLICO' AS categoria,
+             COALESCE((SELECT total_meses FROM meses_categoria WHERE categoria='SERVIDOR PÚBLICO'), 0) AS total_meses
+      UNION ALL
+      SELECT 'EMPLEADO DEL SECTOR PRIVADO',
+             COALESCE((SELECT total_meses FROM meses_categoria WHERE categoria='EMPLEADO DEL SECTOR PRIVADO'), 0)
+      UNION ALL
+      SELECT 'TRABAJADOR INDEPENDIENTE',
+             COALESCE((SELECT total_meses FROM meses_categoria WHERE categoria='TRABAJADOR INDEPENDIENTE'), 0)
+    ),
+
+    -- Colapso GLOBAL (todas las categorías) para TOTAL sin doble conteo
+    orden_global AS (
+      SELECT
+        ini, fin,
+        CASE WHEN LAG(fin) OVER (ORDER BY ini) >= ini THEN 0 ELSE 1 END AS nueva_isla
+      FROM (SELECT ini, fin FROM rangos) t
+    ),
+    islas_global AS (
+      SELECT
+        ini, fin,
+        SUM(nueva_isla) OVER (ORDER BY ini ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS grp
+      FROM orden_global
+    ),
+    colapsado_global AS (
+      SELECT MIN(ini) AS ini, MAX(fin) AS fin
+      FROM islas_global
+      GROUP BY grp
+    ),
+    total_global AS (
+      SELECT COALESCE(SUM(TIMESTAMPDIFF(MONTH, ini, fin)), 0) AS total_meses
+      FROM colapsado_global
+    ),
+    totales AS (
+      SELECT 'TOTAL TIEMPO EXPERIENCIA' AS categoria,
+             (SELECT total_meses FROM total_global) AS total_meses
+    )
+    SELECT
+      s.categoria AS ocupacion,
+      FLOOR(s.total_meses / 12) AS anios,
+      MOD(s.total_meses, 12) AS meses,
+      s.total_meses AS total_meses_calculados
+    FROM (
+      SELECT * FROM detalle
+      UNION ALL
+      SELECT * FROM totales
+    ) AS s
+    ORDER BY FIELD(
+      s.categoria,
+      'SERVIDOR PÚBLICO',
+      'EMPLEADO DEL SECTOR PRIVADO',
+      'TRABAJADOR INDEPENDIENTE',
+      'TOTAL TIEMPO EXPERIENCIA'
+    )
+    """
+
     rows, err = query_mysql(sql, (numero_documento,))
     if err:
         return jsonify({"error": "DB error", "detail": err}), 500
-    return jsonify(rows), 200
+
+    resultado = [{
+        "ocupacion": r["ocupacion"],
+        "años": int(r["anios"]),
+        "meses": int(r["meses"]),
+        "total_meses": int(r["total_meses_calculados"]),
+        "descripcion": f"{int(r['anios'])} años y {int(r['meses'])} meses"
+    } for r in rows]
+
+    return jsonify({"numero_documento": numero_documento, "reporte_experiencia": resultado}), 200
 
 
 @app.route("/hoja_vida/tablas_persona/<string:name_tabla>", methods=["GET"])
