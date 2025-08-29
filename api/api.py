@@ -74,10 +74,19 @@ def query_mysql(sql, params=None, database="mysql"):
     try:
         cursor = connection.cursor(dictionary=True)
         cursor.execute(sql, params)
-        result = cursor.fetchall()
+        
+        # Para procedimientos almacenados, necesitamos obtener todos los result sets
+        results = []
+        for result in cursor.stored_results():
+            results.extend(result.fetchall())
+        
+        # Si no hay stored_results, usar fetchall normal
+        if not results:
+            results = cursor.fetchall()
+            
         cursor.close()
         connection.close()
-        return result, None
+        return results, None
     except mysql.connector.Error as err:
         return None, str(err)
 
@@ -178,8 +187,18 @@ def tablas_persona(name_tabla):
 
 @app.route("/factura_db/historial_precio/<string:producto_name>", methods=["GET"])
 def historial_precio(producto_name):
-    sql = "CALL historial_precio(%s)"
-    rows, err = query_mysql(sql, (producto_name,))
+    sql = """
+    SELECT 
+        a.nombre AS articulo,
+        h.precio,
+        h.fecha_inicio,
+        h.fecha_fin
+    FROM historial_precio h
+    JOIN articulo a ON h.articulo_id = a.articulo_id
+    WHERE a.nombre = %s 
+    ORDER BY h.fecha_inicio
+    """
+    rows, err = query_mysql(sql, (producto_name,), "mariadb")
     if err:
         return jsonify({"error": "DB error", "detail": err}), 500
     return jsonify(rows), 200
@@ -199,25 +218,7 @@ def tabla_productos(name_tabla):
         return jsonify({"error": "DB error", "detail": err}), 500
     return jsonify(rows), 200
 
-@app.route("/factura_db/consultar_tabla", methods=["POST"])
-def consultar_tabla():
-    data = request.get_json()
-    if not data or 'name_tabla' not in data:
-        return jsonify({"error": "name_tabla es requerido"}), 400
-    
-    name_tabla = data['name_tabla']
-    
-    # Validar nombres de tabla permitidos para evitar SQL injection
-    tablas_permitidas = ['cliente', 'articulo', 'historial_precio', 'factura', 'detalle_factura']
-    
-    if name_tabla not in tablas_permitidas:
-        return jsonify({"error": "Tabla no permitida"}), 400
-    
-    sql = f"SELECT * FROM {name_tabla}"
-    rows, err = query_mysql(sql, (), "mariadb")
-    if err:
-        return jsonify({"error": "DB error", "detail": err}), 500
-    return jsonify(rows), 200
+
 
 @app.route("/health", methods=["GET"])
 def health():

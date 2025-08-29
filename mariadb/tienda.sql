@@ -91,36 +91,7 @@ CREATE TABLE detalle_factura (
 
 
 
-    /* Consulta permita observar los cambios de precio de venta de un mismo artículo a través del tiempo*/
-
-SELECT 
-    a.nombre AS articulo,
-    h.precio,
-    h.fecha_inicio,
-    h.fecha_fin
-FROM historial_precio h
-JOIN articulo a ON h.articulo_id = a.articulo_id
-WHERE a.articulo_id = 1
-ORDER BY h.fecha_inicio;
 
 
 
--- procedimiento almacenado para obtener el historial de precios de un artículo
-DELIMITER $$;
 
-CREATE PROCEDURE historial_precio(IN p_nombre_articulo VARCHAR(100))
-BEGIN
-    SELECT 
-        a.nombre AS articulo,
-        h.precio,
-        h.fecha_inicio,
-        h.fecha_fin
-    FROM historial_precio h
-    JOIN articulo a ON h.articulo_id = a.articulo_id
-    WHERE a.nombre = p_nombre_articulo 
-    ORDER BY h.fecha_inicio;
-END$$
-
-DELIMITER ;
-
-CALL historial_precio('Televisor 50"');
