@@ -1,5 +1,3 @@
-
-
 -- ===================================================
 -- Procedimiento: Reporte tiempo de experiencia
 -- ===================================================
@@ -10,22 +8,32 @@ DELIMITER $$
 
 CREATE PROCEDURE reporte_tiempo_experiencia(IN p_numero_documento VARCHAR(255))
 BEGIN
-  DECLARE v_persona_id INT;
+  DECLARE v_persona_id INT DEFAULT NULL;
+  
+  -- Handler para errores SQL
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1
+      @sqlstate = RETURNED_SQLSTATE,
+      @errno = MYSQL_ERRNO,
+      @text = MESSAGE_TEXT;
+    RESIGNAL;
+  END;
 
   -- Buscar la persona
-  SELECT persona_id
-    INTO v_persona_id
+  SELECT persona_id INTO v_persona_id
   FROM persona
   WHERE numero_documento = p_numero_documento
   LIMIT 1;
 
+  -- Validar que existe la persona
   IF v_persona_id IS NULL THEN
     SIGNAL SQLSTATE '45000'
-      SET MESSAGE_TEXT = CONCAT('No existe persona con documento ', p_numero_documento);
+      SET MESSAGE_TEXT = CONCAT('No existe persona con documento: ', p_numero_documento);
   END IF;
 
-  WITH
-  base AS (
+  -- Consulta principal
+  WITH base AS (
     SELECT
       CASE
         WHEN sector = 'PUBLICA' THEN 'SERVIDOR PÚBLICO'
@@ -34,7 +42,7 @@ BEGIN
           THEN 'TRABAJADOR INDEPENDIENTE'
         ELSE 'EMPLEADO DEL SECTOR PRIVADO'
       END AS categoria,
-      GREATEST(fecha_ingreso, '1900-01-01') AS ini,
+      GREATEST(fecha_ingreso, DATE('1900-01-01')) AS ini,
       LEAST(COALESCE(fecha_retiro, CURDATE()), CURDATE()) AS fin
     FROM experiencia_laboral
     WHERE persona_id = v_persona_id

@@ -1,6 +1,28 @@
 // Constante para la URL base del proxy
 const BASE = "/api";
 
+/**
+ * Configuración actualizada para el endpoint de experiencia laboral:
+ * - Endpoint: /hoja_vida/reporte_tiempo_experiencia/<numero_documento>
+ * - Puerto: 4000 (actualizado desde 5000)
+ * - Nueva estructura de respuesta JSON con campos adicionales:
+ *   {
+ *     "numero_documento": "CC1001",
+ *     "reporte_experiencia": [
+ *       {
+ *         "ocupacion": "SERVIDOR PÚBLICO",
+ *         "anios": 2,
+ *         "meses": 5,
+ *         "total_meses": 29,
+ *         "descripcion": "2 años y 5 meses"
+ *       }
+ *     ]
+ *   }
+ * - Manejo mejorado de errores: 404 (persona no encontrada), 500 (error de BD)
+ * - Categorías incluidas: SERVIDOR PÚBLICO, EMPLEADO DEL SECTOR PRIVADO, 
+ *   TRABAJADOR INDEPENDIENTE, TOTAL TIEMPO EXPERIENCIA
+ */
+
 // Variables globales para manejo de datos y paginacion
 let currentData = [];
 let currentPage = 1;
@@ -139,9 +161,23 @@ async function handleApiResponse(response) {
 
         try {
             const errorJson = JSON.parse(errorText);
-            errorMessage = errorJson.error || errorJson.message || `Error ${response.status}`;
+            // Manejar códigos de estado específicos
+            if (response.status === 404) {
+                errorMessage = errorJson.error || errorJson.message || 'No se encontró la persona con el documento proporcionado';
+            } else if (response.status === 500) {
+                errorMessage = errorJson.error || errorJson.message || 'Error interno del servidor de base de datos';
+            } else {
+                errorMessage = errorJson.error || errorJson.message || `Error ${response.status}`;
+            }
         } catch {
-            errorMessage = `Error ${response.status}: ${response.statusText}`;
+            // Si no se puede parsear como JSON, usar mensajes específicos por código de estado
+            if (response.status === 404) {
+                errorMessage = 'No se encontró la persona con el documento proporcionado';
+            } else if (response.status === 500) {
+                errorMessage = 'Error interno del servidor de base de datos';
+            } else {
+                errorMessage = `Error ${response.status}: ${response.statusText}`;
+            }
         }
 
         throw new Error(errorMessage);
@@ -171,8 +207,24 @@ async function fetchReporteExperiencia(numeroDocumento) {
         const data = await handleApiResponse(response);
 
         if (data) {
-            // Si es un array, usarlo directamente; si es un objeto, convertirlo a array
-            const arrayData = Array.isArray(data) ? data : [data];
+            // Manejar la nueva estructura de respuesta del API
+            // Estructura esperada: {numero_documento: "CC1001", reporte_experiencia: [{ocupacion, anios, meses, total_meses, descripcion}, ...]}
+            let arrayData;
+            
+            if (data.reporte_experiencia && Array.isArray(data.reporte_experiencia)) {
+                // Nueva estructura: objeto con numero_documento y reporte_experiencia
+                arrayData = data.reporte_experiencia;
+                setStatus(`Reporte generado exitosamente para documento: ${data.numero_documento || numeroDocumento}`, 'success');
+            } else if (Array.isArray(data)) {
+                // Estructura antigua: array directo (mantenida por compatibilidad)
+                arrayData = data;
+                setStatus(`Reporte generado exitosamente para documento: ${numeroDocumento}`, 'success');
+            } else {
+                // Estructura de objeto único (mantenida por compatibilidad)
+                arrayData = [data];
+                setStatus(`Reporte generado exitosamente para documento: ${numeroDocumento}`, 'success');
+            }
+            
             currentData = arrayData;
             currentPage = 1;
 
@@ -180,7 +232,6 @@ async function fetchReporteExperiencia(numeroDocumento) {
             tableHead.innerHTML = '';
 
             paginate(currentData, currentPage);
-            setStatus(`Reporte generado exitosamente para documento: ${numeroDocumento}`, 'success');
         } else {
             currentData = [];
             tableHead.innerHTML = '';
