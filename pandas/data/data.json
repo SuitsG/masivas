@@ -1,0 +1,72 @@
+{
+    "usuarios": [
+        {
+            "id": 1,
+            "nombre": "Juan Pérez",
+            "edad": 28,
+            "email": "juan.perez@email.com",
+            "activo": true,
+            "fechaRegistro": "2024-01-15"
+        },
+        {
+            "id": 2,
+            "nombre": "María García",
+            "edad": 34,
+            "email": "maria.garcia@email.com",
+            "activo": false,
+            "fechaRegistro": "2024-02-20"
+        },
+        {
+            "id": 3,
+            "nombre": "Carlos López",
+            "edad": 25,
+            "email": "carlos.lopez@email.com",
+            "activo": true,
+            "fechaRegistro": "2024-03-10"
+        }
+    ],
+    "productos": [
+        {
+            "id": 101,
+            "nombre": "Laptop HP",
+            "precio": 1200.50,
+            "categoria": "Electrónicos",
+            "stock": 15,
+            "descripcion": "Laptop HP con 8GB RAM y 256GB SSD"
+        },
+        {
+            "id": 102,
+            "nombre": "Mouse Inalámbrico",
+            "precio": 25.99,
+            "categoria": "Accesorios",
+            "stock": 50,
+            "descripcion": "Mouse inalámbrico ergonómico"
+        },
+        {
+            "id": 103,
+            "nombre": "Teclado Mecánico",
+            "precio": 89.99,
+            "categoria": "Accesorios",
+            "stock": 30,
+            "descripcion": "Teclado mecánico retroiluminado"
+        }
+    ],
+    "ventas": [
+        {
+            "id": 201,
+            "usuarioId": 1,
+            "productoId": 101,
+            "cantidad": 1,
+            "fechaVenta": "2024-03-15",
+            "total": 1200.50
+        },
+        {
+            "id": 202,
+            "usuarioId": 3,
+            "productoId": 102,
+            "cantidad": 2,
+            "fechaVenta": "2024-03-16",
+            "total": 51.98
+        }
+    ]
+}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Modulo Historial Factura</h1>
+        <p>Sistema de facturación y control de inventarios (Base de datos MariaDB)</p>
+        <p><small>Consulta historiales de precios y accede a las tablas del sistema de tienda</small></p>
+    </div>
+
+    <div class="controls-section">
+        <div class="control-group">
+            <h3>Operaciones Disponibles</h3>
+
+            <div class="control-row">
+                <div class="input-group">
+                    <label for="nombreProducto">Nombre del Producto:</label>
+                    <input type="text" id="nombreProducto" placeholder="Ej: Laptop HP">
+                    <button id="historialPrecioBtn" class="btn btn-primary">Historial de Precios</button>
+                </div>
+                <span class="control-description">Obtiene todo el historial de cambios de precios de un producto</span>
+            </div>
+
+            <div class="control-row">
+                <div class="input-group">
+                    <label for="tablaProducto">Tabla del Sistema:</label>
+                    <select id="tablaProducto">
+                        <option value="">Seleccione una tabla...</option>
+                        <option value="cliente">Cliente</option>
+                        <option value="articulo">Artículo</option>
+                        <option value="historial_precio">Historial Precio</option>
+                        <option value="factura">Factura</option>
+                        <option value="detalle_factura">Detalle Factura</option>
+                    </select>
+                    <button id="consultarTablaProductoBtn" class="btn btn-secondary">Consultar Tabla</button>
+                </div>
+                <span class="control-description">Consulta directamente las tablas del sistema de tienda</span>
+            </div>
+
+            <div class="control-row">
+                <button id="healthBtn" class="btn btn-info">Health Check</button>
+                <span class="control-description">Verifica el estado de la API</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-section">
+        <div id="statusArea" class="status-message"></div>
+    </div>
+
+    <div class="results-section">
+        <div class="table-container">
+            <table id="resultsTable" class="results-table">
+                <thead id="tableHead">
+                    <!-- Los headers se cargan dinámicamente -->
+                </thead>
+                <tbody id="resultsBody">
+                    <!-- Los resultados se cargan aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="pagination" class="pagination-container">
+            <!-- Los controles de paginación se cargan aquí dinámicamente -->
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/historial_factura.js"></script>
+{% endblock %}

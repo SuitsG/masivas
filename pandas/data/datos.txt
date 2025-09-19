@@ -1,0 +1,11 @@
+Nombre,Edad,Ciudad,Salario
+Juan Pérez,28,Madrid,45000
+María García,32,Barcelona,52000
+Carlos López,25,Valencia,38000
+Ana Martínez,29,Sevilla,41000
+Pedro Rodríguez,35,Bilbao,48000
+Laura Sánchez,27,Málaga,39000
+Miguel Torres,31,Zaragoza,46000
+Carmen Ruiz,26,Murcia,37000
+David Moreno,33,Palma,50000
+Isabel Jiménez,30,Las Palmas,43000

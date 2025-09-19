@@ -1,0 +1,85 @@
+services:
+  mysql:
+    build:
+      context: ./backendUser/mysql
+      dockerfile: Dockerfile
+    container_name: mysql
+    ports:
+      - "4001:3306"
+    networks:
+      base_masivas:
+        ipv4_address: 172.18.0.2
+
+  postgres:
+    build:
+      context: ./backendUser/postgres
+      dockerfile: Dockerfile
+    container_name: postgres
+    networks:
+      base_masivas:
+        ipv4_address: 172.18.0.3
+        
+  mariadb:
+    build:
+      context: ./backendUser/mariadb
+      dockerfile: Dockerfile
+    container_name: mariadb
+    ports:
+      - "4003:3306"
+    networks:
+      base_masivas:
+        ipv4_address: 172.18.0.4
+
+  api:
+    build:
+      context: ./backendUser/api
+      dockerfile: Dockerfile
+    container_name: api
+    ports:
+      - "8080:4000"
+    networks:
+      base_masivas:
+        ipv4_address: 172.18.0.5
+
+  frontend:
+    build:
+      context: ./frontendUser
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "5010:5000"
+    networks:
+      base_masivas:
+        ipv4_address: 172.18.0.6
+  
+  pandas:
+    build:
+      context: ./pandas
+      dockerfile: Dockerfile
+    container_name: pandas
+    ports:
+      - "5011:5020"
+    networks:
+      base_masivas:
+        ipv4_address: 172.18.0.7
+  
+  sustentacion:
+    build:
+      context: ./sustentacion
+      dockerfile: Dockerfile
+    container_name: sustentacion
+    ports:
+      - "5012:3310"
+    networks:
+      base_masivas:
+        ipv4_address: 172.18.0.8
+
+
+networks:
+  base_masivas:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+          gateway: 172.18.0.1
+
