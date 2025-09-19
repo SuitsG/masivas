@@ -62,6 +62,17 @@ services:
     networks:
       base_masivas:
         ipv4_address: 172.18.0.7
+  
+  sustentacion:
+    build:
+      context: ./sustentacion
+      dockerfile: Dockerfile
+    container_name: sustentacion
+    ports:
+      - "5012:3310"
+    networks:
+      base_masivas:
+        ipv4_address: 172.18.0.8
 
 
 networks:
