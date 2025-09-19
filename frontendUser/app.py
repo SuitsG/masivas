@@ -9,7 +9,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Configuracion de la API base
-API_BASE = os.getenv('API_BASE', 'http://localhost:8080')
+API_BASE = os.getenv('API_BASE', 'http://api:4000')
 
 @app.route('/')
 def index():
