@@ -33,5 +33,17 @@ Para trabajar con Jupyter notebooks:
 2. 🔄 Haz clic en **"Reopen in Container"** para abrir en el entorno de pandas
 3. ✅ Ahora podrás usar el kernel del contenedor de pandas
 
+
+## 🧹 Limpieza de Archivos
+
+> ⚠️ **Importante:** Antes de ejecutar el notebook, elimina los archivos de limpieza existentes para evitar errores durante la ejecución.
+
+### 📝 Pasos para la limpieza:
+1. 🗑️ Localiza y elimina todos los archivos generados previamente
+2. ✨ Ejecuta el notebook desde cero para una experiencia sin errores
+3. 🔄 Esto permitirá regenerar todos los archivos de manera correcta
+
+> 💡 **Tip:** Los archivos ya existentes pueden causar conflictos. Una limpieza previa garantiza un funcionamiento óptimo.
+
 ---
 *¡Happy coding! 💻*
